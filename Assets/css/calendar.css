@@ -1,0 +1,52 @@
+.cal-filterbar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 0.5rem 1.5rem; margin-bottom: 0.75rem; padding: 0; background: transparent; border: none; }
+.cal-filterbar label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.8rem; font-weight: 600; color: var(--muted-foreground, #555); }
+.cal-filterbar select { min-width: 140px; font-size: 0.875rem; border: 1px solid var(--border, #ccc); border-radius: 0.25rem; padding: 0.2rem 0.35rem; background: var(--card, #fff); }
+.cal-filterbar select[multiple] { height: 72px; }
+/* Must out-specify `.cal-filterbar label` (which sets column layout for the
+   select groups), so qualify with the element selector too. */
+.cal-filterbar label.cal-filterbar__checkbox { flex-direction: row; align-items: center; gap: 0.35rem; font-size: 0.875rem; font-weight: normal; margin-top: 0.5rem; cursor: pointer; }
+.cal-root { margin-top: 0.5rem; }
+.cal-layout { display: flex; gap: 1rem; align-items: flex-start; }
+.cal-unscheduled { flex: 0 0 200px; background: transparent; border: none; padding: 0 1rem 0 0; }
+.cal-unscheduled h3 { font-size: 0.8rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em; color: var(--muted-foreground, #888); margin: 0.15rem 0 0.6rem; }
+/* Soften the FullCalendar grid: faint hairlines instead of heavy borders, and a
+   subtle (not olive) "today" tint. FullCalendar v6 reads these CSS variables. */
+.cal-calendar {
+    flex: 1 1 auto;
+    background: transparent;
+    color: var(--card-foreground, #1a1a1a);
+    padding: 0;
+    --fc-border-color: color-mix(in srgb, currentColor 12%, transparent);
+    --fc-today-bg-color: color-mix(in srgb, currentColor 5%, transparent);
+    --fc-neutral-bg-color: transparent;
+    --fc-page-bg-color: transparent;
+    --fc-event-border-color: transparent;
+}
+/* Drop the outer frame; keep only the light internal gridlines. */
+.cal-calendar .fc-scrollgrid { border: none; }
+.cal-calendar .fc .fc-scrollgrid-section > * { border-right: none; border-bottom: none; }
+/* CSP blocks FullCalendar's embedded icon font (data: URI), so the prev/next
+   chevrons render as tofu. Fall back to plain unicode glyphs in a normal font. */
+.cal-calendar .fc-icon { font-family: inherit; font-size: 1.1em; line-height: 1; }
+.cal-calendar .fc-icon-chevron-left::before { content: '\2039'; }
+.cal-calendar .fc-icon-chevron-right::before { content: '\203A'; }
+.cal-unscheduled-item { background: var(--card, #fff); border: 1px solid var(--border, #ddd); border-radius: calc(var(--radius, 0.5rem) - 2px); padding: 0.35rem 0.5rem; margin-bottom: 0.4rem; cursor: grab; font-size: 0.85rem; }
+.cal-hide-unscheduled .cal-unscheduled { display: none; }
+.cal-ev { display: flex; align-items: center; gap: 0.3rem; overflow: hidden; padding: 1px 2px; }
+.cal-ev-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-weight: 500; }
+.cal-ev-badge { font-size: 0.68rem; opacity: 0.8; flex: 0 0 auto; }
+.cal-ev-proj { padding: 0 0.4em; border-radius: 999px; background: rgba(0,0,0,0.14); opacity: 0.9; }
+.cal-ev-avatar { flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 1.25em; height: 1.25em; border-radius: 50%; font-size: 0.6rem; font-weight: 700; background: rgba(0,0,0,0.16); color: inherit; }
+/* Month-grid pills carry the task's (pastel) color as background — force dark,
+   readable text there, matching Kanboard's own board. List/agenda rows sit on
+   the theme surface, so they keep the inherited theme text color. */
+.cal-calendar .fc-daygrid-event { border-radius: 5px; }
+.cal-calendar .fc-daygrid-event .cal-ev { color: #1f2933; }
+.cal-calendar .fc-daygrid-event .cal-ev-avatar { background: rgba(0,0,0,0.14); }
+/* Overdue: a solid left bar reads more clearly than a full outline. */
+.cal-calendar .fc-daygrid-event.cal-ev-overdue { box-shadow: inset 3px 0 0 0 var(--destructive, #c0392b); }
+.cal-ev-overdue { outline: 1px solid color-mix(in srgb, var(--destructive, #c0392b) 55%, transparent); outline-offset: -1px; }
+.cal-popover { position: absolute; z-index: 9000; min-width: 200px; max-width: 320px; background: var(--card, #fff); color: var(--card-foreground, #1a1a1a); border: 1px solid var(--border, #ccc); border-radius: var(--radius, 0.5rem); box-shadow: 0 8px 24px rgba(0,0,0,0.25); padding: 0.6rem 0.75rem; }
+.cal-pop-title { font-weight: 600; margin-bottom: 0.35rem; }
+.cal-pop-row { font-size: 0.85rem; }
+.cal-pop-link { display: inline-block; margin-top: 0.4rem; }
