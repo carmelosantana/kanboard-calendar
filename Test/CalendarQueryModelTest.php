@@ -334,6 +334,10 @@ class CalendarQueryModelTest extends Base
         $model = new CalendarQueryModel($this->container);
         $start = mktime(0, 0, 0, (int) date('n'), 1);
         $end   = mktime(0, 0, 0, (int) date('n') + 1, 1);
+        // User id 1 (admin) is used deliberately: getEvents() early-returns []
+        // before the source-merge block when the user has NO accessible projects
+        // (Model/CalendarQueryModel.php:65-67), so a source is only invoked for a
+        // user who can see at least one project. Admin sees the seeded project.
         $model->getEvents(1, array('assignee_id' => 3), $start, $end);
 
         $this->assertSame(1, $captured[0]);
@@ -358,5 +362,48 @@ class CalendarQueryModelTest extends Base
         foreach ($events as $e) {
             $this->assertIsInt($e['id'], 'due-date event ids stay integers when no source is registered');
         }
+    }
+
+    // v1.2.0: decorators mutate due-date events but are NOT applied to source
+    // events — a source builds complete events itself (spec §1 rule 4).
+    public function testDecoratorsAreNotAppliedToSourceEvents()
+    {
+        list($pid, $t1, $t2, $due) = $this->seed();
+
+        // Decorator tags every event it is passed with a 'DEC' badge.
+        $this->container['calendarEventDecorators'] = array(
+            function (array $event, array $row) {
+                $event['extendedProps']['badges'][] = array('text' => 'DEC', 'cls' => 'dec');
+                return $event;
+            },
+        );
+        // Source contributes one event carrying its own (empty) badges.
+        $this->container['calendarEventSources'] = array(
+            function ($userId, array $filters, $rangeStart, $rangeEnd) {
+                return array(array(
+                    'id'     => 'stub-99',
+                    'title'  => 'Src',
+                    'start'  => date('c', mktime(10, 0, 0, (int) date('n'), 15)),
+                    'end'    => null,
+                    'allDay' => true,
+                    'color'  => '#000000',
+                    'url'    => '/x',
+                    'extendedProps' => array('project' => 'S', 'badges' => array()),
+                ));
+            },
+        );
+
+        $model = new CalendarQueryModel($this->container);
+        $start = mktime(0, 0, 0, (int) date('n'), 1);
+        $end   = mktime(0, 0, 0, (int) date('n') + 1, 1);
+        $events = $model->getEvents(1, array(), $start, $end);
+
+        $byId = array();
+        foreach ($events as $e) { $byId[$e['id']] = $e; }
+
+        // Due-date event WAS decorated...
+        $this->assertSame('DEC', $byId[$t1]['extendedProps']['badges'][0]['text']);
+        // ...but the source event was NOT (decorators skip source events).
+        $this->assertSame(array(), $byId['stub-99']['extendedProps']['badges']);
     }
 }
