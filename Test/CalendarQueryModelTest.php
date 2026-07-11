@@ -279,4 +279,84 @@ class CalendarQueryModelTest extends Base
         $this->assertNotNull($ev);
         $this->assertSame('X', $ev['extendedProps']['badges'][0]['text']);
     }
+
+    // v1.2.0: calendarEventSources — a registered source CONTRIBUTES events that
+    // are merged into getEvents output verbatim (not decorated, not re-filtered).
+    public function testEventSourcesAreMerged()
+    {
+        $this->seed(); // one project with two due-date tasks in this month
+
+        // A source that returns a single namespaced, fully-formed event.
+        $sourceEvent = array(
+            'id'     => 'stub-42',
+            'title'  => 'Stub block',
+            'start'  => date('c', mktime(14, 0, 0, (int) date('n'), 15)),
+            'end'    => date('c', mktime(16, 0, 0, (int) date('n'), 15)),
+            'allDay' => false,
+            'color'  => '#336699',
+            'url'    => '/task/42',
+            'extendedProps' => array('project' => 'Stub', 'badges' => array()),
+        );
+        $this->container['calendarEventSources'] = array(
+            function ($userId, array $filters, $rangeStart, $rangeEnd) use ($sourceEvent) {
+                return array($sourceEvent);
+            },
+        );
+
+        $model = new CalendarQueryModel($this->container);
+        $start = mktime(0, 0, 0, (int) date('n'), 1);
+        $end   = mktime(0, 0, 0, (int) date('n') + 1, 1);
+        $events = $model->getEvents(1, array(), $start, $end);
+
+        $ids = array_column($events, 'id');
+        $this->assertContains('stub-42', $ids, 'source event must be merged into output');
+        // Due-date events (int ids) must still be present alongside the source event.
+        $this->assertGreaterThan(1, count($events), 'due-date events must remain when a source is registered');
+        // The source event is passed through verbatim (badges not touched by decorators).
+        $merged = null; foreach ($events as $e) { if ($e['id'] === 'stub-42') { $merged = $e; } }
+        $this->assertSame('Stub block', $merged['title']);
+        $this->assertSame(array(), $merged['extendedProps']['badges']);
+    }
+
+    // v1.2.0: source callable receives the exact ($userId, $filters, $rangeStart,
+    // $rangeEnd) getEvents was called with.
+    public function testEventSourceReceivesUserFiltersAndRange()
+    {
+        $this->seed();
+        $captured = array();
+        $this->container['calendarEventSources'] = array(
+            function ($userId, array $filters, $rangeStart, $rangeEnd) use (&$captured) {
+                $captured = array($userId, $filters, $rangeStart, $rangeEnd);
+                return array();
+            },
+        );
+
+        $model = new CalendarQueryModel($this->container);
+        $start = mktime(0, 0, 0, (int) date('n'), 1);
+        $end   = mktime(0, 0, 0, (int) date('n') + 1, 1);
+        $model->getEvents(1, array('assignee_id' => 3), $start, $end);
+
+        $this->assertSame(1, $captured[0]);
+        $this->assertSame(array('assignee_id' => 3), $captured[1]);
+        $this->assertSame($start, $captured[2]);
+        $this->assertSame($end, $captured[3]);
+    }
+
+    // v1.2.0: absent calendarEventSources key ⇒ behavior identical to 1.1.0
+    // (only due-date events, all with int ids).
+    public function testAbsentEventSourcesKeyLeavesOutputUnchanged()
+    {
+        list($pid, $t1, $t2, $due) = $this->seed();
+        $this->assertFalse(isset($this->container['calendarEventSources']));
+
+        $model = new CalendarQueryModel($this->container);
+        $start = mktime(0, 0, 0, (int) date('n'), 1);
+        $end   = mktime(0, 0, 0, (int) date('n') + 1, 1);
+        $events = $model->getEvents(1, array(), $start, $end);
+
+        $this->assertCount(2, $events, 'only the two seeded due-date events');
+        foreach ($events as $e) {
+            $this->assertIsInt($e['id'], 'due-date event ids stay integers when no source is registered');
+        }
+    }
 }
