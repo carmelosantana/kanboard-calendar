@@ -153,9 +153,11 @@
             initialView: 'dayGridMonth',
             height: 'auto',
             firstDay: 1,
-            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
+            headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth' },
             editable: true,
             droppable: true,
+            eventResizableFromStart: false,
+            eventDurationEditable: false,
             eventClassNames: function (arg) { return arg.event.extendedProps.overdue ? ['cal-ev-overdue'] : []; },
             eventContent: function (arg) {
                 var ep = arg.event.extendedProps;
