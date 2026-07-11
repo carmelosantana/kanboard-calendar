@@ -2,6 +2,28 @@
 
 All notable changes to the CalendarPlugin will be documented in this file.
 
+## [1.2.0] - 2026-07-10
+
+### Added
+- **Week and day time-grid views** (`timeGridWeek`, `timeGridDay`) in the
+  calendar header toolbar, alongside the existing month and list views. The
+  events feed is unchanged — the narrower week/day ranges pass straight through
+  the existing `start`/`end` parsing.
+- Generic `calendarEventSources` extension point — sibling to
+  `calendarEventDecorators`. Where decorators *mutate* due-date events, sources
+  *contribute new* events. Other suite plugins (e.g. TimeBlock) register a
+  container-based array of callables
+  `function(int $userId, array $filters, int $rangeStart, int $rangeEnd): array`
+  that return fully-formed FullCalendar events (namespaced string ids). The
+  source owns access control, range-filtering, and its own badges;
+  CalendarPlugin appends the events verbatim. See `README.md` §Cross-plugin.
+  No-op (byte-identical rendering) when no sources are registered.
+
+### Changed
+- Time-grid views are render-only: event resizing is disabled
+  (`eventResizableFromStart`/`eventDurationEditable` false). Month
+  drag-to-reschedule (updating `date_due`) is unchanged.
+
 ## [1.1.0] - 2026-07-05
 
 ### Added

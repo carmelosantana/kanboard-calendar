@@ -108,6 +108,21 @@ class CalendarQueryModel extends Base
             }
         }
 
+        // Generic extension point: other suite plugins (e.g. TimeBlock) may
+        // register SOURCES on the container to CONTRIBUTE new events (distinct
+        // from decorators, which only mutate the due-date events above). Each
+        // source is a callable fn($userId, $filters, $rangeStart, $rangeEnd): array
+        // returning fully-formed FullCalendar events (namespaced string ids).
+        // The source owns access control, range-filtering, and its own badges —
+        // CalendarPlugin appends them verbatim. Read defensively: absent key ⇒
+        // [] ⇒ behavior byte-identical to before this extension point.
+        $sources = isset($this->container['calendarEventSources']) ? $this->container['calendarEventSources'] : array();
+        foreach ($sources as $source) {
+            foreach (call_user_func($source, $userId, $filters, $rangeStart, $rangeEnd) as $ev) {
+                $events[] = $ev;
+            }
+        }
+
         return $events;
     }
 

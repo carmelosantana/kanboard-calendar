@@ -68,7 +68,7 @@ class Plugin extends Base
 
     public function getPluginName()        { return 'CalendarPlugin'; }
     public function getPluginAuthor()      { return 'Carmelo Santana'; }
-    public function getPluginVersion()     { return '1.1.0'; }
+    public function getPluginVersion()     { return '1.2.0'; }
     public function getPluginDescription() { return 'Drag-and-drop calendar view: tasks by due date, across all projects or per project.'; }
     public function getPluginHomepage()    { return 'https://github.com/carmelosantana/kanboard-calendar'; }
     public function getPluginLicense()     { return 'MIT'; }

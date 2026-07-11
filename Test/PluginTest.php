@@ -16,7 +16,7 @@ class PluginTest extends Base
     public function testPluginVersionValue()
     {
         $plugin = new Plugin($this->container);
-        $this->assertSame('1.1.0', $plugin->getPluginVersion());
+        $this->assertSame('1.2.0', $plugin->getPluginVersion());
     }
 
     public function testPluginMetadataNotEmpty()
