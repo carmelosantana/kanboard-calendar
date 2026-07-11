@@ -212,7 +212,17 @@
                     buildFilterQuery(root);
                 fetch(url, { credentials: 'same-origin', headers: { 'X-Requested-With': 'XMLHttpRequest' } })
                     .then(function (r) { return r.json(); })
-                    .then(function (data) { success(data); })
+                    .then(function (data) {
+                        // Source-contributed events use namespaced string ids (e.g.
+                        // "timeblock-12"); due-date events use the integer task id.
+                        // Only due-date events are reschedulable — mark everything
+                        // else render-only so dragging a source event can't fire a
+                        // doomed reschedule POST (int-cast of a namespaced id -> 0).
+                        data.forEach(function (ev) {
+                            if (!/^\d+$/.test(String(ev.id))) { ev.editable = false; }
+                        });
+                        success(data);
+                    })
                     .catch(function (e) { failure(e); });
             }
         });
