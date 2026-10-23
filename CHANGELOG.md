@@ -2,6 +2,11 @@
 
 All notable changes to the CalendarPlugin will be documented in this file.
 
+## [1.2.1] - 2026-10-22
+
+### Changed
+- Re-vendored FullCalendar 6.1.15 → 6.1.22 (standard global bundle, npm tarball integrity-checked).
+
 ## [1.2.0] - 2026-07-10
 
 ### Added
