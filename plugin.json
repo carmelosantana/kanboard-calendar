@@ -1,7 +1,7 @@
 {
     "name": "CalendarPlugin",
     "description": "Drag-and-drop calendar view: tasks by due date, across all projects or per project.",
-    "version": "1.2.0",
+    "version": "1.2.1",
     "author": "Carmelo Santana",
     "license": "MIT",
     "homepage": "https://github.com/carmelosantana/kanboard-calendar",
