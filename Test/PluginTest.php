@@ -13,10 +13,16 @@ class PluginTest extends Base
         $this->assertSame('CalendarPlugin', $plugin->getPluginName());
     }
 
-    public function testPluginVersionValue()
+    public function testPluginVersionComesFromPluginJson()
     {
         $plugin = new Plugin($this->container);
-        $this->assertSame('1.2.1', $plugin->getPluginVersion());
+        $json = json_decode(file_get_contents(dirname(__DIR__) . '/plugin.json'), true);
+        $this->assertSame($json['version'], $plugin->getPluginVersion());
+        $this->assertDoesNotMatchRegularExpression(
+            "/function getPluginVersion\(\)[^{]*\{[^}]*'\d+\.\d+/",
+            file_get_contents(dirname(__DIR__) . '/Plugin.php'),
+            'getPluginVersion() reads plugin.json; the version lives only there'
+        );
     }
 
     public function testPluginMetadataNotEmpty()
