@@ -2,6 +2,11 @@
 
 All notable changes to the CalendarPlugin will be documented in this file.
 
+## 1.2.2 — 2026-11-17
+
+### Fixed
+- Read the plugin version from plugin.json.
+
 ## [1.2.1] - 2026-10-22
 
 ### Changed
