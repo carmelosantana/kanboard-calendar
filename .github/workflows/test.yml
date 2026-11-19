@@ -10,4 +10,4 @@ permissions:
   contents: read
 jobs:
   test:
-    uses: carmelosantana/kanboard-plugins/.github/workflows/plugin-test.yml@f5ab6c4d42c5199bd30fdad073d4c3d8cdf3b0d7 # harness 2026-11-17
+    uses: carmelosantana/kanboard-plugins/.github/workflows/plugin-test.yml@0d9593992f9da272425988775c1c70639e0aaa7b # harness 2026-11-18
